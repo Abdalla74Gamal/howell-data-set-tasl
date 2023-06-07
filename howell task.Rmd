@@ -1,0 +1,112 @@
+#reading th file
+```{r}
+data <- read.csv("D:/dr ibtissam/G4_howell.csv") 
+data
+```
+```{r}
+str(data)
+```
+```{r}
+data$weight <- as.numeric(gsub(" kg", "", data$weight))
+str(data)
+```
+```{r}
+summary(data)
+```
+```{r}
+data[is.na(data$weight), ]
+```
+```{r}
+data <- data[complete.cases(data$weight), ]
+data
+```
+```{r}
+data$BMI <- data$weight / (data$height / 100)^2
+data
+```
+
+```{r}
+get_weight_category <- function(bmi) {
+  if (bmi < 18.5) {
+    return('Underweight')
+  } else if (bmi >= 18.5 & bmi < 25) {
+    return('Healthy weight')
+  } else if (bmi >= 25 & bmi < 30) {
+    return('Overweight')
+  } else if (bmi >= 30 & bmi < 35) {
+    return('Obesity')
+  } else {
+    return('Severe obesity')
+  }
+}
+
+data$weight_category <- sapply(data$BMI, get_weight_category)
+data
+```
+```{r}
+table(data$weight_category)
+```
+
+```{r}
+get_over_weight <- function(bmi) {
+  if (bmi < 25) {
+    return('NO')
+  } else {
+    return('Yes')
+  }
+}
+data$Overweight <- sapply(data$BMI, get_over_weight)
+
+```
+```{r}
+data
+```
+install.packages("ggplot2")
+```{r}
+library(ggplot2)
+ggplot(data, aes(x = weight_category, fill = sex)) + 
+  geom_bar()
+```
+
+```{r}
+ggplot(data, aes(x = BMI)) +
+  geom_histogram()
+```
+```{r}
+ggplot(data, aes(x = height, y = BMI, color = sex)) + 
+  geom_point()
+```
+```{r}
+ggplot(data, aes(x = height, y =weight , color = sex)) + 
+  geom_point()
+```
+```{r}
+ggplot(data, aes(x = height, y =weight ,  color = weight_category))+ 
+  geom_point()
+
+```
+```{r}
+corr <- cor(data,[, c("age", "weight", "height","BMI")])
+
+corr
+```
+```{r}
+
+library(reshape2)
+data_subset <- data[, c("age", "weight", "height", "BMI")]
+
+corr <- cor(data_subset)
+
+corr_melted <- melt(corr)
+
+ggplot(corr_melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Correlation Matrix Heatmap") +
+  coord_equal()
+```
+
+
+
